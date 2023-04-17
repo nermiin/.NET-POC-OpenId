@@ -6,14 +6,14 @@ Proof of concept for integrating OpenID Connect authentication with a .NET appli
 Requirements
 ------------
 
--   .NET 5.0 SDK or higher
+-   .NET 6.0 SDK or higher
 -   `Microsoft.AspNetCore.Authentication.OpenIdConnect` NuGet package
 -   `Microsoft.AspNetCore.Authentication.Cookies` NuGet package
 
 Usage
 -----
 
-1.  Clone the repository: `git clone https://github.com/<username>/POC-OpenId.git`.
+1.  Clone the repository: `git clone https://github.com/nermiin/POC-OpenId.git`.
 2.  Open the solution in Visual Studio or your preferred IDE.
 3.  Create a project in the Google Cloud Console and enable the OpenID Connect API. See [these instructions](https://developers.google.com/identity/protocols/oauth2/openid-connect#appsetup).
 4.  Configure the OpenID Connect options in `appsettings.json`:
