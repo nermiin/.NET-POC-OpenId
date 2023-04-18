@@ -17,14 +17,19 @@ Usage
 2.  Open the solution in Visual Studio or your preferred IDE.
 3.  Create a project in the Google Cloud Console and enable the OpenID Connect API. See [these instructions](https://developers.google.com/identity/protocols/oauth2/openid-connect#appsetup).
 4.  Configure the OpenID Connect options in `appsettings.json`:
-    -   `ClientId`: the client ID for your project.
-    -   `ClientSecret`: the client secret for your project.
     -   `Authority`: the authorization server endpoint.
     -   `CallbackPath`: the callback path for the OpenID Connect middleware.
-5.  Start the application.
-6.  Navigate to the home page and click the "Login" button.
-7.  You will be redirected to the Google login page. Enter your credentials to authenticate.
-8.  Upon successful authentication, you will be redirected back to the application's home page.
+5.  Manage user secrets by adding secret file to the project `secret.json`, to do that right click on the csproj file then select manage user secrets, this will create a secret file. Then Add this section to it:
+`{
+    "OpenId": {
+       `ClientId`: "Your client Id",
+        `ClientSecret`: "Your client secret"
+    }
+}`
+6.  Start the application.
+7.  Navigate to the home page and click the "Login" button.
+8.  You will be redirected to the Google login page. Enter your credentials to authenticate.
+9.  Upon successful authentication, you will be redirected back to the application's home page.
 
 Anti-Forgery State Token
 ------------------------
