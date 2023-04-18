@@ -7,17 +7,23 @@ namespace OpenID.Controllers;
 
 public class AuthenticationController : Controller
 {
+    private readonly IConfiguration _config;
+
+    private string clientId => _config["OpenId:ClientId"];
+    private string clientSecret => _config["OpenId:ClientSecret"];
     private string authorizationEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
-    private string clientId = "Your_client_id";
-    private string clientSecret = "Your_client_secret";
     private string redirectUri = "https://localhost:5164/callback";
     private string scope = "openid profile email phone address";
     private string responseType = "code";
     private string tokenEndpoint = "https://oauth2.googleapis.com/token";
 
     const int tokenLength = 32;
-    private string state = GenerateStateToken(tokenLength);
-    
+    private static string state = GenerateStateToken(tokenLength);
+
+    public AuthenticationController(IConfiguration config)
+    {
+        _config = config;
+    }
 
     [HttpGet("~/login")]
     public string Login()
@@ -39,9 +45,9 @@ public class AuthenticationController : Controller
     }
 
     [HttpGet("~/callback")]
-    public async Task<IActionResult> Callback(string code, string state)
+    public async Task<IActionResult> Callback([FromQuery] CallbackRequest request)
     {
-        if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(state))
+        if (string.IsNullOrEmpty(request.code) || string.IsNullOrEmpty(request.state))
         {
             return BadRequest("Code or state parameter is missing.");
         }
@@ -50,7 +56,7 @@ public class AuthenticationController : Controller
 
         var tokenRequestContent = new TokenExchangeRequest
         {
-            Code = code,
+            Code = request.code,
             ClientId = clientId,
             ClientSecret = clientSecret,
             RedirectUri = redirectUri,
@@ -62,7 +68,6 @@ public class AuthenticationController : Controller
         var requestBody = TokenExchangeRequest.ToFormUrlEncodedContent(tokenRequestContent);
 
         var tokenResponse = await client.PostAsync(tokenEndpoint, requestBody);
-
         if (!tokenResponse.IsSuccessStatusCode)
         {
             return BadRequest("Unable to exchange authorization code for access token.");
@@ -70,6 +75,11 @@ public class AuthenticationController : Controller
 
         var tokenResponseString = await tokenResponse.Content.ReadAsStringAsync();
         var tokenResponseContent = Newtonsoft.Json.JsonConvert.DeserializeObject<TokenResponse>(tokenResponseString);
+
+        if (Uri.EscapeDataString(state) != Uri.EscapeDataString(request.state))
+        {
+            return BadRequest("Invalid state parameter.");
+        }
 
         var jwtInfo = DecodeIdToken(tokenResponseContent.id_token);
 
